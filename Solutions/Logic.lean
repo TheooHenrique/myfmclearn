@@ -13,14 +13,26 @@ theorem doubleneg_intro :
   intro hn
   apply hn h
   done
+
 theorem doubleneg_elim :
   ¬ ¬ P → P  := by
   intro hn
-  sorry
+  by_cases lem : P
+  case pos =>
+    exact lem
+  case neg =>
+    have b := hn lem
+    contradiction
+  done
 
 theorem doubleneg_law :
   ¬ ¬ P ↔ P  := by
-  sorry
+  apply Iff.intro
+  case mp =>
+    exact doubleneg_elim P
+  case mpr =>
+    exact doubleneg_intro P
+  done
 
 
 ------------------------------------------------
@@ -56,11 +68,29 @@ theorem conj_comm :
 
 theorem impl_as_disj_converse :
   (¬ P ∨ Q) → (P → Q)  := by
-  sorry
+  intro h
+  intro hp
+  cases h
+  case inl hl =>
+    have b := hl hp
+    contradiction
+  case inr hr =>
+    exact hr
+  done
+
+
 
 theorem disj_as_impl :
   (P ∨ Q) → (¬ P → Q)  := by
-  sorry
+  intro h
+  intro hp
+  cases h
+  case inl hl =>
+    have b := hp hl
+    contradiction
+  case inr hr =>
+    exact hr
+  done
 
 
 ------------------------------------------------
@@ -69,15 +99,35 @@ theorem disj_as_impl :
 
 theorem impl_as_contrapositive :
   (P → Q) → (¬ Q → ¬ P)  := by
-  sorry
+  intro h
+  intro hnq
+  intro hp
+  have q := h hp
+  have b := hnq q
+  contradiction
+  done
 
 theorem impl_as_contrapositive_converse :
   (¬ Q → ¬ P) → (P → Q)  := by
-  sorry
+  intro h
+  intro hp
+  by_cases lem : Q
+  case pos =>
+    exact lem
+  case neg =>
+    have hnp := h lem
+    have b := hnp hp
+    contradiction
+  done
 
 theorem contrapositive_law :
   (P → Q) ↔ (¬ Q → ¬ P)  := by
-  sorry
+  apply Iff.intro
+  case mp =>
+    exact impl_as_contrapositive P Q
+  case mpr =>
+    exact impl_as_contrapositive_converse P Q
+  done
 
 
 ------------------------------------------------
@@ -86,8 +136,21 @@ theorem contrapositive_law :
 
 theorem lem_irrefutable :
   ¬ ¬ (P ∨ ¬ P)  := by
-  sorry
-
+  intro h
+  by_cases lem : P
+  case pos =>
+    have hor : P ∨ ¬ P := by
+      left
+      exact lem
+    have b := h hor
+    contradiction
+  case neg =>
+    have hor : P ∨ ¬ P := by
+      right
+      exact lem
+    have b := h hor
+    contradiction
+  done
 
 ------------------------------------------------
 -- Peirce's law
@@ -95,6 +158,8 @@ theorem lem_irrefutable :
 
 theorem peirce_law_weak :
   ((P → Q) → P) → ¬ ¬ P  := by
+  intro h
+  intro hn
   sorry
 
 
@@ -104,7 +169,17 @@ theorem peirce_law_weak :
 
 theorem impl_linear :
   (P → Q) ∨ (Q → P)  := by
-  sorry
+  by_cases lem : P
+  case pos =>
+    right
+    intro hq
+    exact lem
+  case neg =>
+    left
+    intro hp
+    have b := lem hp
+    contradiction
+  done
 
 
 ------------------------------------------------
@@ -113,7 +188,18 @@ theorem impl_linear :
 
 theorem disj_as_negconj :
   P ∨ Q → ¬ (¬ P ∧ ¬ Q)  := by
-  sorry
+  intro hor
+  intro hn
+  rcases hn with ⟨hnp, hnq⟩
+  cases hor
+  case inl hl =>
+    have b := hnp hl
+    contradiction
+  case inr hr =>
+    have b := hnq hr
+    contradiction
+  done
+
 
 theorem conj_as_negdisj :
   P ∧ Q → ¬ (¬ P ∨ ¬ Q)  := by
